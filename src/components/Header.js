@@ -48,9 +48,8 @@ const Header = ({ onCategorySelect, onCartClick, categories: propCategories, sel
 
     const toKebabCase = (str) => {
         return str
-            .replace(/([a-z])([A-Z])/g, '$1-$2')
-            .replace(/[\s_]+/g, '-')
-            .toLowerCase();
+            .toLowerCase()
+            .replace(/\s+/g, '-');
     };
 
     const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -66,7 +65,7 @@ const Header = ({ onCategorySelect, onCartClick, categories: propCategories, sel
                                     <div key={category.id} className="nav-item">
                                         <Link
                                             to={`/${toKebabCase(category.name)}`}
-                                            data-testid={`category-name ${selectedCategory === category.id ? 'active-category-link' : 'category-link'}`}
+                                            data-testid={`${selectedCategory === category.id ? 'active-category-link' : 'category-link'}`}
                                             className={`category-name ${selectedCategory === category.id ? 'selected' : ''}`}
                                             onClick={() => handleCategoryClick(category.id, category.name)}
                                         >

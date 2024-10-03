@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Home from './components/Home';
-import About from './components/About';
-import Contact from './components/Contact';
 import GraphQLTestPage from './components/GraphQLTest';
-import ReactDOM from 'react-dom';
 import Header from './components/Header';
 import ProductGrid from './components/ProductGrid';
 import ProductDetail from './components/ProductDetail';
@@ -12,8 +8,6 @@ import CartOverlay from './components/CartOverlay';
 import config from './config';
 
 function App() {
-
-
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState(() => {
@@ -22,13 +16,11 @@ function App() {
   });
   const [isCartVisible, setIsCartVisible] = useState(false);
 
-
   useEffect(() => {
       localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
   const handleCategorySelect = (categoryId) => {
-      //console.log("Category selected (index.js App):", categoryId); // Debugging statement
       setSelectedCategory(categoryId);
       setSelectedProduct(null); // Reset selected product when category changes
   };
@@ -71,7 +63,6 @@ function App() {
           if (result.errors) {
               console.error('Failed to fetch product details (5 - index.js)', result.errors);
           } else {
-              //console.log('Fetched product details:', result.data.product);
               setSelectedProduct(result.data.product);
           }
       } catch (error) {
@@ -118,8 +109,6 @@ function App() {
               console.error('Failed to fetch product details (9 - index.js)', result.errors);
           } else {
               console.log('(handleProductSelectQuick) Fetched product details:', result.data.product);
-              //setSelectedProductQuick(result.data.product);
-
               
               const selectedAttributes = result.data.product.attributes.reduce((acc, attribute) => {
                   acc[attribute.id] = {
@@ -130,7 +119,6 @@ function App() {
                   };
                   return acc;
               }, {});
-
 
               console.log('selectedProduct:', selectedProduct);
               console.log('selectedAttributes:', selectedAttributes);
@@ -148,70 +136,60 @@ function App() {
       }
   };
 
-
-
-
-
-
-
-
   const handleAddToCart = async (product) => {
+      console.log('(handleAddToCart) Adding item to cart:', product);
 
-  console.log('(handleAddToCart) Adding item to cart:', product);
+      const updatedAttributes = [];
 
-  const updatedAttributes = [];
-
-  for (const attrKey of Object.keys(product.selectedAttributes)) {
-      const attribute = product.selectedAttributes[attrKey];
-      console.log('Attribute to be looked for:', attribute);
-      console.log('getItemsByAttributeIdAndProductId details for product.id=', product.product.id, " and attribute.id=", attribute.id);
-      const query = `
-          query {
-              getItemsByAttributeIdAndProductId(product_id: "${product.product.id}", attribute_id: "${attribute.id}") {
-                  id
-                  value
-                  display_value
+      for (const attrKey of Object.keys(product.selectedAttributes)) {
+          const attribute = product.selectedAttributes[attrKey];
+          console.log('Attribute to be looked for:', attribute);
+          console.log('getItemsByAttributeIdAndProductId details for product.id=', product.product.id, " and attribute.id=", attribute.id);
+          const query = `
+              query {
+                  getItemsByAttributeIdAndProductId(product_id: "${product.product.id}", attribute_id: "${attribute.id}") {
+                      id
+                      value
+                      display_value
+                  }
               }
-          }
-      `;
+          `;
 
-     
-      let allPossibleAttributeItems = null;
-      try {
-          const response = await fetch(config.graphqlEndpoint, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ query, variables: {} }),
+          let allPossibleAttributeItems = null;
+          try {
+              const response = await fetch(config.graphqlEndpoint, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ query, variables: {} }),
+              });
+              const result = await response.json();
+              if (result.errors) {
+                  console.error('Failed to fetch getItemsByAttributeIdAndProductId details (7 - index.js)', result.errors);
+              } else {
+                  console.log('Fetched getItemsByAttributeIdAndProductId details:', result.data);
+                  allPossibleAttributeItems = result.data.getItemsByAttributeIdAndProductId;                    
+              }
+          } catch (error) {
+              console.error('Failed to fetch product details (8 - index.js)', error);
+          }
+          console.log('allPossibleAttributeItems:', allPossibleAttributeItems);
+          updatedAttributes.push({
+              ...attribute,
+              allPossibleAttributeItems
           });
-          const result = await response.json();
-          if (result.errors) {
-              console.error('Failed to fetch getItemsByAttributeIdAndProductId details (7 - index.js)', result.errors);
-          } else {
-              console.log('Fetched getItemsByAttributeIdAndProductId details:', result.data);
-              allPossibleAttributeItems = result.data.getItemsByAttributeIdAndProductId;                    
-          }
-      } catch (error) {
-          console.error('Failed to fetch product details (8 - index.js)', error);
       }
-      console.log('allPossibleAttributeItems:', allPossibleAttributeItems);
-      updatedAttributes.push({
-          ...attribute,
-          allPossibleAttributeItems
-      });
-  }
 
-  const updatedProduct = {
-      ...product,
-      selectedAttributes: updatedAttributes
-  };
+      const updatedProduct = {
+          ...product,
+          selectedAttributes: updatedAttributes
+      };
 
       const existingItemIndex = cartItems.findIndex((item) => 
           item.id === updatedProduct.id && 
           JSON.stringify(item.selectedAttributes) === JSON.stringify(updatedProduct.selectedAttributes)
       );
-      //console.log('Existing item index:', existingItemIndex);
 
       if (existingItemIndex !== -1) {
           const updatedItems = [...cartItems];
@@ -219,18 +197,13 @@ function App() {
           setCartItems(updatedItems);            
       } else {
           updatedProduct.quantity = 1;
-          //console.log('Adding new item to cart:', updatedProduct);
           setCartItems((cartItems) => [...cartItems, updatedProduct]);
       }
-
-      
       
       setIsCartVisible(true);        
   };
 
-
   const onIncreaseQuantity = (index) => {
-      //console.log('onIncreaseQuantity:', index);
       setCartItems((cartItems) => {
           const updatedItems = [...cartItems];
           updatedItems[index].quantity += 1;
@@ -239,23 +212,19 @@ function App() {
   };
   
   const onDecreaseQuantity = (index) => {
-      //console.log('onDecreaseQuantity:', index);
       setCartItems((cartItems) => {
           const updatedItems = [...cartItems];
           if (updatedItems[index].quantity > 1) {
               updatedItems[index].quantity -= 1;
           } else {
-              //console.log('Removing item at index:', index);
               handleRemoveItem(index)
           }
           return updatedItems;
       });
   };
 
-
   const handleCartClick = async () => {
-      //console.log('Cart button clicked');
-      setIsCartVisible(true);
+      setIsCartVisible((prevIsCartVisible) => !prevIsCartVisible);
   };
 
   const handleCartClose = () => {
@@ -264,15 +233,10 @@ function App() {
   };
 
   const handleRemoveItem = (index) => {
-      //console.log('Removing item at index:', index);
-      /*setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));*/
-
       setCartItems(cartItems.filter((_, i) => i !== index));
-
   };
 
   const handleMakeOrder = async () => {
-      //console.log('Making order with items:', cartItems);
       const content = cartItems.map(item => {
           const attributes = Object.keys(item.selectedAttributes).map(attrId => {
               const attr = item.selectedAttributes[attrId];
@@ -304,11 +268,9 @@ function App() {
       }
   };
 
-
   return (
     <Router>
       <div>
-        
         <Header 
             onCategorySelect={handleCategorySelect} 
             onCartClick={handleCartClick} 
@@ -320,7 +282,6 @@ function App() {
         {selectedProduct ? (
             <ProductDetail product={selectedProduct} onAddToCart={handleAddToCart} />
         ) : (
-            
         <Routes>
           <Route path="/" element={<ProductGrid 
             categoryId={0}
@@ -344,7 +305,6 @@ function App() {
             onProductSelectQuick={handleProductSelectQuick} 
             cartItems={cartItems} />} />              
         </Routes>
-
         )}
 
         {isCartVisible && (
@@ -357,7 +317,6 @@ function App() {
                 onIncreaseQuantity={onIncreaseQuantity}
             />
         )}
-
       </div>
     </Router>
   );

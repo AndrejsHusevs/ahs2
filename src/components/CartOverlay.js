@@ -3,9 +3,8 @@ import React from 'react';
 
 const toKebabCase = (str) => {
     return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .replace(/[\s_]+/g, '-')
-        .toLowerCase();
+        .toLowerCase()
+        .replace(/\s+/g, '-');
 };
 
 const CartOverlay = ({ cartItems, onClose, onRemoveItem, onMakeOrder, onIncreaseQuantity, onDecreaseQuantity }) => {
@@ -16,7 +15,7 @@ const CartOverlay = ({ cartItems, onClose, onRemoveItem, onMakeOrder, onIncrease
     const totalItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
     return (
-        <div className="cart-overlay-wrapper">
+        <div className="cart-overlay-wrapper" data-testid="cart-overlay">
             <div className="cart-overlay-background" onClick={onClose}></div>
             <div className="cart-overlay">
                 <div className="cart-content">
@@ -55,7 +54,7 @@ const CartOverlay = ({ cartItems, onClose, onRemoveItem, onMakeOrder, onIncrease
                                                                             key={idx}
                                                                             className={`attribute-item-in-cart ${isSelected ? 'selected-item-in-cart' : ''}`}
                                                                             style={isSwatch && isValidColor ? { backgroundColor, width: '24px', height: '24px', display: 'inline-block', margin: '2px' } : { display: 'inline-block', margin: '2px' }}
-                                                                            data-testid={`cart-item-attribute-${toKebabCase(attribute?.name)}-${toKebabCase(attrItem.display_value)}${isSelected ? '-selected' : ''}`}
+                                                                            data-testid={`product-attribute-${toKebabCase(attribute?.name)}-${toKebabCase(attrItem.value)}${isSelected ? '-selected' : ''}`}
                                                                         >
                                                                             {isSwatch ? '' : attrItem.display_value}
                                                                         </span>

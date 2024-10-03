@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import parse from 'html-react-parser';
 
+const toKebabCase = (str) => {
+    return str
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+};
+
 const ProductDetail = ({ product, onAddToCart }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [selectedAttributes, setSelectedAttributes] = useState({});
@@ -40,10 +46,10 @@ const ProductDetail = ({ product, onAddToCart }) => {
     const allAttributesSelected = product.attributes.every(attribute => selectedAttributes[attribute.id]);
 
     return (
-        <div className="product-detail container">
+        <div className="product-detail container" data-testid={`product-${toKebabCase(product.name)}`}>
             <div className="row">
                 {/* Left column with small product pictures */}
-                <div className="col-2 thumbnails-container">
+                <div className="col-2 thumbnails-container" data-testid="product-gallery">
                     {product.gallery.map((image, index) => (
                         <img
                             key={index}
@@ -83,7 +89,9 @@ const ProductDetail = ({ product, onAddToCart }) => {
                         {product.attributes && product.attributes.map((attribute, index) => (
                             <div key={index}>
                                 <strong>{attribute.name}:</strong>
-                                <div className="attribute-items">
+
+                           
+                                <div className="attribute-items" data-testid={`product-attribute-${toKebabCase(attribute.name)}`}>
                                     {attribute.items.map((item, idx) => {
                                         const isSwatch = attribute.type === 'swatch';
                                         const backgroundColor = isSwatch ? item.value : '';
@@ -98,6 +106,7 @@ const ProductDetail = ({ product, onAddToCart }) => {
                                                 key={idx}
                                                 className={`btn btn-sm ${selectedAttributes[attribute.id] === item.id ? 'product-details-attribute-btn-selected' : 'btn-outline-primary product-details-attribute-btn'}`}
                                                 onClick={() => handleAttributeSelect(attribute.id, item.id)}
+                                                data-testid={`product-attribute-${toKebabCase(attribute.name)}-${item.display_value}`}
                                                 style={isSwatch && isValidColor ? { backgroundColor, border: '1px solid #ccc', width: '24px', height: '24px' } : {}}
                                             >
                                                 {isSwatch ? '' : item.display_value}
@@ -112,12 +121,13 @@ const ProductDetail = ({ product, onAddToCart }) => {
                     <button
                         className="btn btn-primary btn-add-to-cart"
                         onClick={handleAddToCart}
+                        data-testid="add-to-cart"
                         disabled={!allAttributesSelected || !product.instock}
                         style={{ backgroundColor: !product.instock ? 'gray' : allAttributesSelected ? 'green' : 'gray', cursor: !product.instock ? 'not-allowed' : allAttributesSelected ? 'pointer' : 'not-allowed' }}
                     >
                         {product.instock ? 'Add to Cart' : 'Out of Stock'}
                     </button>
-                    <div>{parse(product.description)}</div>
+                    <div data-testid="product-description">{parse(product.description)}</div>
                 </div>
             </div>
         </div>

@@ -5,9 +5,8 @@ import config from '../config';
 
 const toKebabCase = (str) => {
     return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .replace(/[\s_]+/g, '-')
-        .toLowerCase();
+        .toLowerCase()
+        .replace(/\s+/g, '-');
 };
 
 const ProductGrid = ({ categoryId, onProductSelect, onProductSelectQuick, cartItems }) => {
@@ -124,8 +123,8 @@ const ProductGrid = ({ categoryId, onProductSelect, onProductSelectQuick, cartIt
                     
                     const isInCart = cartItems.some(item => item.product.id === product.id);
                     return (
-                        <div key={product.id} className="col-lg-4 col-md-6 mb-4" data-testid={`product-${toKebabCase(product.name)}`}>
-                            <div className="card h-100 noborder" data-testid='product-${product name in kebab case}' onClick={() => onProductSelect(product.id)}>
+                        <div key={product.id} className="col-lg-4 col-md-6 mb-4">
+                            <div className="card h-100 noborder" data-testid={`product-${toKebabCase(product.name)}`} onClick={() => onProductSelect(product.id)}>
                                 <div className="product-image-container">
                                     <img src={product.gallery[0]} className={`product-image ${!product.instock ? 'out-of-stock' : ''}`} alt={product.name} />
                                     {!product.instock && (

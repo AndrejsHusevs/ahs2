@@ -50,4 +50,4 @@ Copy-Item -Path $sourcePublic -Destination "$destination\public" -Recurse -Force
 Write-Host "Copying config.js file..."
 Copy-Item -Path $sourceConfig -Destination "$destination\src" -Force
 
-Write-Host "Deployment completed successfully."
+Write-Host "Deployment completed successfully."  -ForegroundColor Green
